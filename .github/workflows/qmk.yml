@@ -1,0 +1,27 @@
+name: Build QMK Firmware
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install QMK dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi
+
+      - name: Build firmware
+        run: |
+          make tb11:keymap
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: ./tb11_keymap.bin
