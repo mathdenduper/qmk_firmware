@@ -6,15 +6,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install QMK dependencies
         run: |
           sudo apt update
-          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi
+          sudo apt install -y \
+            python3-pip \
+            gcc-arm-none-eabi \
+            binutils-arm-none-eabi \
+            dfu-util \
+            git
+          python3 -m pip install qmk
+
+      - name: Initialize QMK (no full download)
+        run: |
+          qmk setup --yes --base-dir .
+          qmk doctor
 
       - name: Build firmware
         run: |
