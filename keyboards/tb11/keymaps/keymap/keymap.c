@@ -3,8 +3,9 @@
 
 #include QMK_KEYBOARD_H
 
-static uint16_t bright_timer;
 static bool bright_held = false;
+static bool bright_shift = false;   // <-- NEW: remember Shift state
+static uint16_t repeat_timer;
 
 // Tap dance identifiers
 enum {
@@ -16,19 +17,22 @@ enum custom_keycodes {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-
     switch (keycode) {
-            case BRIGHT:
-                if (record->event.pressed) {
-                    bright_held = true;
-                    bright_timer = timer_read();
+        case BRIGHT:
+            if (record->event.pressed) {
+                bright_held = true;
 
-                    if (get_mods() & MOD_MASK_SHIFT) {
-                        tap_code(KC_BRIGHTNESS_DOWN);
-                    } else {
-                        tap_code(KC_BRIGHTNESS_UP);
-                    }
+                // Capture Shift state NOW, not later (fixes macOS)
+                bright_shift = (get_mods() & MOD_MASK_SHIFT);
 
+                // Do single tap once
+                if (bright_shift) {
+                    tap_code(KC_BRIGHTNESS_DOWN);
+                } else {
+                    tap_code(KC_BRIGHTNESS_UP);
+                }
+
+                repeat_timer = timer_read();
             } else {
                 bright_held = false;
             }
@@ -40,12 +44,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void matrix_scan_user(void) {
     if (!bright_held) return;
 
-    static uint16_t repeat_timer;
-
     if (timer_elapsed(repeat_timer) > 100) {
         repeat_timer = timer_read();
 
-        if (get_mods() & MOD_MASK_SHIFT) {
+        // Use stored shift state — works on macOS
+        if (bright_shift) {
             tap_code(KC_BRIGHTNESS_DOWN);
         } else {
             tap_code(KC_BRIGHTNESS_UP);
