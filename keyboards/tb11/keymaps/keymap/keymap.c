@@ -16,7 +16,7 @@ enum custom_keycodes {
     BRIGHT = SAFE_RANGE,
 };
 
-bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
 
         case KC_PSCR:  // Your keyboard's PrintScreen key
@@ -38,9 +38,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
             return false;
     }
     return true;
-}
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case BRIGHT:
             if (record->event.pressed) {
