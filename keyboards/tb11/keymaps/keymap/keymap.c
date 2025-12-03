@@ -40,19 +40,19 @@ bool handle_printscreen(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool handle_brightness(uint16_t keycode, keyrecord_t *record) {
+
     if (keycode == BRIGHT) {
 
         if (record->event.pressed) {
             bright_held = true;
 
-            // Detect if UP arrow is physically held
-            bright_shift = is_keyboard_key_pressed(KC_UP);
+            // <<< YOUR DESIRED LOGIC >>>
+            bright_down = IS_KEY_PRESSED(KC_UP);
 
             repeat_timer = timer_read();
             first_repeat_done = false;
 
-            // Initial tap
-            if (bright_shift) {
+            if (bright_down) {
                 tap_code(KC_BRIGHTNESS_DOWN);
             } else {
                 tap_code(KC_BRIGHTNESS_UP);
@@ -88,7 +88,7 @@ void matrix_scan_user(void) {
 
     repeat_timer = timer_read();
 
-    if (bright_shift) {
+    if (bright_down) {
         tap_code(KC_BRIGHTNESS_DOWN);
     } else {
         tap_code(KC_BRIGHTNESS_UP);
