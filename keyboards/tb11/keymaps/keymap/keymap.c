@@ -16,6 +16,30 @@ enum custom_keycodes {
     BRIGHT = SAFE_RANGE,
 };
 
+bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+    switch (keycode) {
+
+        case KC_PSCR:  // Your keyboard's PrintScreen key
+            if (record->event.pressed) {
+                os_variant_t os = detected_host_os();
+
+                if (os == OS_MACOS) {
+                    // macOS screenshot: Cmd + Shift + 3
+                    register_code(KC_LGUI);
+                    register_code(KC_LSFT);
+                    tap_code(KC_3);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_LGUI);
+                } else {
+                    // Windows/Linux: normal PrintScreen
+                    tap_code(KC_PSCR);
+                }
+            }
+            return false;
+    }
+    return true;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case BRIGHT:
