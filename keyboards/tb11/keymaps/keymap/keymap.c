@@ -16,50 +16,48 @@ enum custom_keycodes {
     BRIGHT = SAFE_RANGE,
 };
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
+bool handle_printscreen(uint16_t keycode, keyrecord_t *record) {
+    if (keycode != KC_PSCR) return true;
 
-        case KC_PSCR:  // Your keyboard's PrintScreen key
-            if (record->event.pressed) {
-                os_variant_t os = detected_host_os();
+    if (record->event.pressed) {
+        os_variant_t os = detected_host_os();
 
-                if (os == OS_MACOS) {
-                    // macOS screenshot: Cmd + Shift + 3
-                    register_code(KC_LGUI);
-                    register_code(KC_LSFT);
-                    tap_code(KC_3);
-                    unregister_code(KC_LSFT);
-                    unregister_code(KC_LGUI);
-                } else {
-                    // Windows/Linux: normal PrintScreen
-                    tap_code(KC_PSCR);
-                }
-            }
-            return false;
+        if (os == OS_MACOS) {
+            register_code(KC_LGUI);
+            register_code(KC_LSFT);
+            tap_code(KC_4);
+            unregister_code(KC_LSFT);
+            unregister_code(KC_LGUI);
+        } else {
+            tap_code(KC_PSCR);
+        }
     }
-    return true;
+    return false;
+}
 
+bool handle_brightness(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case BRIGHT:
             if (record->event.pressed) {
-                bright_held = true;
-
-                // Capture Shift state NOW, not later (fixes macOS)
+                bright_held  = true;
                 bright_shift = (get_mods() & MOD_MASK_SHIFT);
-
-                // Do single tap once
                 if (bright_shift) {
                     tap_code(KC_BRIGHTNESS_DOWN);
                 } else {
                     tap_code(KC_BRIGHTNESS_UP);
                 }
-
                 repeat_timer = timer_read();
             } else {
                 bright_held = false;
             }
             return false;
     }
+    return true;
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!handle_printscreen(keycode, record)) return false;
+    if (!handle_brightness(keycode, record)) return false;
     return true;
 }
 
