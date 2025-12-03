@@ -6,6 +6,10 @@
 static bool bright_held = false;
 static bool bright_shift = false;   // <-- NEW: remember Shift state
 static uint16_t repeat_timer;
+static bool first_repeat_done = false;
+
+#define BRIGHT_INITIAL_DELAY 300   // ms before repeating starts
+#define BRIGHT_REPEAT_DELAY 150    // ms between repeats
 
 // Tap dance identifiers
 enum {
@@ -64,18 +68,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void matrix_scan_user(void) {
     if (!bright_held) return;
 
-    if (timer_elapsed(repeat_timer) > 100) {
-        repeat_timer = timer_read();
+    uint16_t elapsed = timer_elapsed(repeat_timer);
 
-        // Use stored shift state — works on macOS
-        if (bright_shift) {
-            tap_code(KC_BRIGHTNESS_DOWN);
-        } else {
-            tap_code(KC_BRIGHTNESS_UP);
-        }
+    // First delay is longer to prevent accidental fast repeats
+    if (!first_repeat_done) {
+        if (elapsed < BRIGHT_INITIAL_DELAY) return;
+        first_repeat_done = true;
+    } else {
+        if (elapsed < BRIGHT_REPEAT_DELAY) return;
+    }
+
+    repeat_timer = timer_read();
+
+    // Repeat action (slow)
+    if (bright_shift) {
+        tap_code(KC_BRIGHTNESS_DOWN);
+    } else {
+        tap_code(KC_BRIGHTNESS_UP);
     }
 }
-
 
 // Tap-dance function
 void td_media_finished(tap_dance_state_t *state, void *user_data) {
