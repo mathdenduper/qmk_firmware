@@ -40,25 +40,31 @@ bool handle_printscreen(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool handle_brightness(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case BRIGHT:
-            if (record->event.pressed) {
+    if (keycode == BRIGHT) {
 
-                bright_held  = true;
-                bright_shift = (get_mods() & MOD_BIT(KC_UP));
-                repeat_timer = timer_read();
-                first_repeat_done = false;
+        if (record->event.pressed) {
+            bright_held = true;
 
-                if (bright_shift) {
-                    tap_code(KC_BRIGHTNESS_DOWN);
-                } else {
-                    tap_code(KC_BRIGHTNESS_UP);
-                }
+            // Detect if UP arrow is physically held
+            bright_shift = is_keyboard_key_pressed(KC_UP);
+
+            repeat_timer = timer_read();
+            first_repeat_done = false;
+
+            // Initial tap
+            if (bright_shift) {
+                tap_code(KC_BRIGHTNESS_DOWN);
             } else {
-                bright_held = false;
+                tap_code(KC_BRIGHTNESS_UP);
             }
-            return false;
+
+        } else {
+            bright_held = false;
+        }
+
+        return false;
     }
+
     return true;
 }
 
