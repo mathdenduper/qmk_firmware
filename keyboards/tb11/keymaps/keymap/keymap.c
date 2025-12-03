@@ -45,20 +45,15 @@ bool handle_brightness(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
 
                 bright_held  = true;
-                bright_shift = (get_mods() & MOD_MASK_SHIFT);
+                bright_shift = (get_mods() & MOD_BIT(KC_UP));
                 repeat_timer = timer_read();
                 first_repeat_done = false;
-
-                uint8_t saved_mods = get_mods();
-                clear_mods();  // <-- IMPORTANT
 
                 if (bright_shift) {
                     tap_code(KC_BRIGHTNESS_DOWN);
                 } else {
                     tap_code(KC_BRIGHTNESS_UP);
                 }
-
-                set_mods(saved_mods);  // restore shift after tap
             } else {
                 bright_held = false;
             }
@@ -87,16 +82,11 @@ void matrix_scan_user(void) {
 
     repeat_timer = timer_read();
 
-    uint8_t saved_mods = get_mods();
-    clear_mods();  // <-- IMPORTANT for repeats
-
     if (bright_shift) {
         tap_code(KC_BRIGHTNESS_DOWN);
     } else {
         tap_code(KC_BRIGHTNESS_UP);
     }
-
-    set_mods(saved_mods);
 }
 
 // Tap-dance function
