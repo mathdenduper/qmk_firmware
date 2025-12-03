@@ -4,6 +4,7 @@
 #include QMK_KEYBOARD_H
 
 static bool bright_held = false;
+static bool up_held = false;
 static bool bright_down = false;
 static uint16_t repeat_timer;
 static bool first_repeat_done = false;
@@ -40,14 +41,13 @@ bool handle_printscreen(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool handle_brightness(uint16_t keycode, keyrecord_t *record) {
-
     if (keycode == BRIGHT) {
-
         if (record->event.pressed) {
+
             bright_held = true;
 
-            // <<< YOUR DESIRED LOGIC >>>
-            bright_down = IS_KEY_PRESSED(KC_UP);
+            // Determine direction based on whether UP arrow is held
+            bright_down = up_held;
 
             repeat_timer = timer_read();
             first_repeat_done = false;
@@ -61,14 +61,17 @@ bool handle_brightness(uint16_t keycode, keyrecord_t *record) {
         } else {
             bright_held = false;
         }
-
         return false;
     }
-
     return true;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+        // Track UP arrow manually
+    if (keycode == KC_UP) {
+        up_held = record->event.pressed;
+    }
+    
     if (!handle_printscreen(keycode, record)) return false;
     if (!handle_brightness(keycode, record)) return false;
     return true;
