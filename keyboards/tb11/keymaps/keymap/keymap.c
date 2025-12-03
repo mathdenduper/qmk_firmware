@@ -4,7 +4,7 @@
 #include QMK_KEYBOARD_H
 
 static bool bright_held = false;
-static bool bright_shift = false;   // <-- NEW: remember Shift state
+static bool bright_down = false;
 static uint16_t repeat_timer;
 static bool first_repeat_done = false;
 
